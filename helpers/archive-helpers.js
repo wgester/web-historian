@@ -1,5 +1,6 @@
 var fs = require('fs');
 var path = require('path');
+var fetcher = require('../workers/htmlfetcher');
 
 /* You will need to reuse the same paths many times over in the course of this sprint.
   Consider calling this function in `request-handler.js` and passing in the necessary
@@ -26,7 +27,7 @@ exports.initialize = function(pathsObj){
 // The following function names are provided to you to suggest how you might
 // modularize your code. Keep it clean!
 
-exports.readListOfUrls = readListOfUrls = function(cb){
+var readListOfUrls = function(cb){
   fs.readFile(paths['list'], function(err, data) {
     if(err) {
        throw error;
@@ -36,18 +37,68 @@ exports.readListOfUrls = readListOfUrls = function(cb){
   });
 };
 
-exports.isUrlInList = function(url, cb){
+var readArchivedUrls = function(cb){
+  fs.readdir(paths['archivedSites'], function(err, files){
+    if (err){
+      console.error("You got a problem");
+    }
+    cb(files);
+  });
+};
+
+var isUrlInList = exports.isUrlInList = function(url, cb){
   readListOfUrls(function(array){
      cb(array.indexOf(url) > -1);
   });
 };
 
-exports.addUrlToList = function(){
+var addUrlToList = exports.addUrlToList = function(url){
+  isUrlInList(url, function(urlExistsInList){
+    if (!urlExistsInList){
+      var list = fs.createWriteStream(paths['list'], {'flags': 'a'});
+      list.write(url + '\n');
+    }
+  });
 };
 
-exports.isURLArchived = function(){
+exports.isUrlArchived = function(url, cb){
+  readArchivedUrls(function(files){
+    if (files.indexOf(url) > -1){
+      cb(true);
+      return;
+    }
+    cb(false);
+  });
 };
 
-exports.downloadUrls = function(){
+
+var getUnarchivedList = function(cb){
+  var listToDownload = [];
+  var archivedSet = {};
+  readArchivedUrls( function(archivedList) {
+    archivedList.forEach( function(url) {
+      archivedSet[url] = url;
+    });
+    readListOfUrls(function(list){
+       list.forEach( function(urlInList) {
+          if (!archivedSet.hasOwnProperty(urlInList)) {
+            listToDownload.push(urlInList);
+          }
+       });
+       cb(listToDownload);
+    });
+  });
 };
 
+//oppurtunity to use deffered objects
+var downloadUrls = exports.downloadUrls = function(){
+  getUnarchivedList(function(listToDownload){
+    listToDownload.forEach(function(url){
+      fetcher.fetch(url, function(data){
+        console.log(data);
+      });
+    });
+  });
+};
+
+setInterval( function() { downloadUrls(); }, 5000);

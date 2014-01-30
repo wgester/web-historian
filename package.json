@@ -1,0 +1,10 @@
+{
+  "name": "web-archive",
+  "version": "0.0.1",
+  "main": "web/basic-server.js",
+  "author": "Hack Reactor",
+  "license": "Copyright 2013, Hack Reactor. All rights reserved.",
+  "dependencies": {
+    "underscore": "*"
+  }
+}

@@ -10,7 +10,7 @@ exports.headers = headers = {
   'Content-Type': "text/html"
 };
 
-exports.serveAssets = function(res, asset) {
+var serveAssets = exports.serveAssets = function(res, asset) {
   var source = fs.createReadStream( asset );
   source.on('error', function() {
     res.writeHead(404, headers);
@@ -24,8 +24,13 @@ exports.serveAssets = function(res, asset) {
 
 exports.fetchAsset = function(req, res){
   readPost(req, function(url) {
-    archive.isUrlInList(url, function(exists){
-      console.log('Url ', url, (exists?'exists':'does not exist') );
+    archive.isUrlArchived(url, function(urlExists){
+        if (urlExists) {
+          serveAssets(res, archive.paths['archivedSites'] + '/' + url);
+        } else {
+          serveAssets(res, archive.paths['siteAssets'] + '/loading.html');
+          archive.addUrlToList(url);
+        }
     });
   });
 };

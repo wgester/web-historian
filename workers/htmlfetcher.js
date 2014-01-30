@@ -1,2 +1,20 @@
-// eventually, you'll have some code here that uses the code in `archive-helpers.js` 
-// to actually download the urls you want to download.
+var http = require('http');
+
+var fetch = exports.fetch = function(url, cb){
+  url = 'http://' + url;
+  http.get(url, function(response){
+    var collection = "";
+    response.on('data', function(data){
+      collection += data;
+    });
+    response.on('end', function(data){
+      collection += data;
+      cb(collection);
+    });
+    response.on('error', function(error){
+      console.log("response error from html get");
+    });
+  }).on('error', function(error){
+      console.log("this is an error from htmlfetcher.fetch");
+     });
+};
