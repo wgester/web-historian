@@ -7,7 +7,7 @@ var path = require('path');
   code in one place! Feel free to customize it in any way you wish.
 */
 
-exports.paths = {
+exports.paths = paths = {
   'siteAssets' : path.join(__dirname, '../web/public'),
   'archivedSites' : path.join(__dirname, '../archives/sites'),
   'list' : path.join(__dirname, '../archives/sites.txt')
@@ -26,10 +26,20 @@ exports.initialize = function(pathsObj){
 // The following function names are provided to you to suggest how you might
 // modularize your code. Keep it clean!
 
-exports.readListOfUrls = function(){
+exports.readListOfUrls = readListOfUrls = function(cb){
+  fs.readFile(paths['list'], function(err, data) {
+    if(err) {
+       throw error;
+    }
+    var array = data.toString().split("\n");
+    cb(array);
+  });
 };
 
-exports.isUrlInList = function(){
+exports.isUrlInList = function(url, cb){
+  readListOfUrls(function(array){
+     cb(array.indexOf(url) > -1);
+  });
 };
 
 exports.addUrlToList = function(){

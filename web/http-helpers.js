@@ -11,8 +11,7 @@ exports.headers = headers = {
 };
 
 exports.serveAssets = function(res, asset) {
-
-  var source = fs.createReadStream('./public' + asset);
+  var source = fs.createReadStream( asset );
   source.on('error', function() {
     res.writeHead(404, headers);
     res.end();
@@ -21,7 +20,22 @@ exports.serveAssets = function(res, asset) {
     res.writeHead(200, headers);
   });
   source.pipe(res);
-
 };
 
+exports.fetchAsset = function(req, res){
+  readPost(req, function(url) {
+    archive.isUrlInList(url, function(exists){
+      console.log('Url ', url, (exists?'exists':'does not exist') );
+    });
+  });
+};
 
+var readPost = function(req, cb){
+  var collection = "";
+  req.on('data', function(data) {
+    collection += data;
+  });
+  req.on('end', function(){
+    cb( collection.slice(4) );
+  });
+};
