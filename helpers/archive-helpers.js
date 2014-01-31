@@ -1,6 +1,7 @@
 var fs = require('fs');
 var path = require('path');
 var fetcher = require('../workers/htmlfetcher');
+var db = require('../databaseHelper/dataBaseHelpers');
 
 /* You will need to reuse the same paths many times over in the course of this sprint.
   Consider calling this function in `request-handler.js` and passing in the necessary
@@ -37,10 +38,17 @@ var readListOfUrls = function(cb){
   });
 };
 
+var writeArchivedUrl = function(data, url) {
+  var fileName = paths['archivedSites'] + '/' + url;
+  fs.writeFile(fileName, data, function() {
+    console.log();
+  });
+};
+
 var readArchivedUrls = function(cb){
   fs.readdir(paths['archivedSites'], function(err, files){
     if (err){
-      console.error("You got a problem");
+      console.log("You got a problem");
     }
     cb(files);
   });
@@ -95,10 +103,9 @@ var downloadUrls = exports.downloadUrls = function(){
   getUnarchivedList(function(listToDownload){
     listToDownload.forEach(function(url){
       fetcher.fetch(url, function(data){
-        console.log(data);
+        //console.log('fetcher.fetch about to writeArchivedUrl ', data);
+        db.writeArchivedUrl( data, url );
       });
     });
   });
 };
-
-setInterval( function() { downloadUrls(); }, 5000);

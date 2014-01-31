@@ -13,12 +13,10 @@ exports.headers = headers = {
 var serveAssets = exports.serveAssets = function(res, asset) {
   var source = fs.createReadStream( asset );
   source.on('error', function() {
-    res.writeHead(404, headers);
+    console.log("You have an error in your serveAssets pipe");
     res.end();
   });
-  source.on('data', function() {
-    res.writeHead(200, headers);
-  });
+  res.writeHead(200, headers);
   source.pipe(res);
 };
 

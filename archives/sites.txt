@@ -1,1 +1,7 @@
 www.google.com
+www.ebay.com
+www.amazon.com
+www.cnn.com
+www.gmail.com
+www.fox.com
+www.msnbc.com
